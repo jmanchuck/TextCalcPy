@@ -4,20 +4,42 @@ class Operator:
         self.id = id
         self.precedence = self.getPrecedence(id)
 
+    def __str__(self):
+        return self.id
+
     @staticmethod
     def getPrecedence(id):
 
         if id == "+" or id == "-":
             return 0
-
         if id == "*" or id == "/":
             return 1
-
         if id == "^":
             return 2
-
         if id == '(' or id == ')':
             return 100
+
+    # changes a plus operator to minus, minus operator to plus, otherwise does nothing
+    def reverse(self):
+        if self.id == "+":
+            self.id = "-"
+        elif self.id == "-":
+            self.id = "+"
+
+    def operate(self, first_num, second_num):
+
+        if self.id == "+":
+            return first_num + second_num
+        elif self.id == "-":
+            return first_num - second_num
+        elif self.id == "*":
+            return first_num * second_num
+        elif self.id == "/":
+            return first_num / second_num
+        elif self.id == "^":
+            return first_num ** second_num
+        else:
+            raise
 
 
 class Calculator:
@@ -46,34 +68,57 @@ class Calculator:
 
                 # if new operator has smaller precedence than top, pop the top and push into postfix
                 while len(self._operatorStack) > 0 and op.precedence < self._operatorStack[-1].precedence:
-                    self._postFix.append(self._operatorStack.pop().id)
+                    self._postFix.append(self._operatorStack.pop())
                 self._operatorStack.append(op)
 
         while len(self._operatorStack) > 0:
-            self._postFix.append(self._operatorStack.pop().id)
+            if self._operatorStack[-1].id == "-" and not self.isNumber(self._postFix[-1]):
+                self._postFix[-1].reverse()
+            self._postFix.append(self._operatorStack.pop())
 
     @staticmethod
     def isNumber(a):
         try:
             float(a)
             return True
-        except ValueError:
+        except (ValueError, TypeError) as e:
             return False
 
     def inFix(self):
         return self._inFix
 
     def postFix(self):
-        return self._postFix
+        a = []
+        for i in self._postFix:
+            if self.isNumber(i):
+                a.append(i)
+            else:
+                a.append(i.id)
+        return a
+
+    def evaluate(self):
+        answer = []
+
+        for i in self._postFix:
+            print(answer)
+            if self.isNumber(i):
+                answer.append(int(i))
+            else:
+                num_second = answer.pop()
+                num_first = answer.pop()
+                answer.append(i.operate(num_first, num_second))
+
+        return answer[0]
 
 
 def main():
 
     calc = Calculator()
-    string = "1 + 2 * 5 - 3 * 2".split(' ')
+    string = "1 + 2 * 5 - 3 * 2 + 2 ^ 4".split(' ')
     calc.process(string)
     print(calc.inFix())
     print(calc.postFix())
+    print(calc.inFix(), '=', calc.evaluate())
 
 
 if __name__ == "__main__":
