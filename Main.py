@@ -16,8 +16,8 @@ class Operator:
             return 1
         if id == "^":
             return 2
-        if id == '(' or id == ')':
-            return 100
+        if id == "(" or id == ")":
+            return 3
 
     # changes a plus operator to minus, minus operator to plus, otherwise does nothing
     def reverse(self):
@@ -66,10 +66,20 @@ class Calculator:
             else:
                 op = Operator(i)
 
-                # if new operator has smaller precedence than top, pop the top and push into postfix
-                while len(self._operatorStack) > 0 and op.precedence < self._operatorStack[-1].precedence:
-                    self._postFix.append(self._operatorStack.pop())
-                self._operatorStack.append(op)
+                # add open parenth to operator stack
+                if op.id == "(":
+                    self._operatorStack.append(op)
+
+                # pop operators until corresponding open parenth is found
+                elif op.id == ")":
+                    while len(self._operatorStack) > 0 and self._operatorStack[-1].id != "(":
+                        self._postFix.append(self._operatorStack.pop())
+                    self._operatorStack.pop()
+                else:
+                    # if new operator has smaller precedence than top, pop the top and push into postfix
+                    while len(self._operatorStack) > 0 and op.precedence < self._operatorStack[-1].precedence and self._operatorStack[-1].id != "(":
+                        self._postFix.append(self._operatorStack.pop())
+                    self._operatorStack.append(op)
 
         while len(self._operatorStack) > 0:
             if self._operatorStack[-1].id == "-" and not self.isNumber(self._postFix[-1]):
@@ -114,7 +124,7 @@ class Calculator:
 def main():
 
     calc = Calculator()
-    string = "1 + 2 * 5 - 3 * 2 + 2 ^ 4".split(' ')
+    string = "( 9 + 3 ) / 3 - 8 / 2 - 2 * 3".split(' ')
     calc.process(string)
     print(calc.inFix())
     print(calc.postFix())
