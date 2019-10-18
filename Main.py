@@ -48,6 +48,7 @@ class Calculator:
         self._operatorStack = []
         self._inFix = None
         self._postFix = []
+        self.answer = None
 
     def process(self, arr):
         """
@@ -118,6 +119,7 @@ class Calculator:
                 num_first = answer.pop()
                 answer.append(i.operate(num_first, num_second))
 
+        self.answer = answer[0]
         return answer[0]
 
 
@@ -131,5 +133,22 @@ def main():
     print(calc.inFix(), '=', calc.evaluate())
 
 
+def precedenceTest():
+
+    calc = Calculator()
+    string = "5 - 2 * 4 + 3 + 10 / 2 - 5".split(' ')
+    calc.process(string)
+    print(calc.inFix(), '=', calc.evaluate())
+    assert calc.answer == 0
+
+
+def parenthTest():
+
+    calc = Calculator()
+    string = "( 5 + 2 ) / 7 - ( 10 / 2 ) + 2 ^ 2".split(' ')
+    calc.process(string)
+    print(calc.inFix(), '=', calc.evaluate())
+    assert calc.answer == 0
+
 if __name__ == "__main__":
-    main()
+    parenthTest()
